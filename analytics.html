@@ -333,12 +333,6 @@
                         <canvas id="deptChart"></canvas>
                     </div>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-title">Engineering Interest Distribution</div>
-                    <div class="chart-container">
-                        <canvas id="interestChart"></canvas>
-                    </div>
-                </div>
             </div>
 
             <!-- Data Table -->
@@ -434,11 +428,13 @@
 
             const interested = filteredData.filter(d => d.interest === 'Yes').length;
             const notInterested = filteredData.filter(d => d.interest === 'No').length;
-            const totalAttendees = filteredData.reduce((sum, d) => sum + (d.totalMembers || 0), 0);
+            const totalPeople = filteredData.reduce((sum, d) => sum + (d.totalMembers || 0), 0);
+            const studentCount = filteredData.length;
+            const familyCount = totalPeople - studentCount;
 
             document.getElementById('interestedCount').textContent = interested;
             document.getElementById('notInterestedCount').textContent = notInterested;
-            document.getElementById('totalAttendees').textContent = totalAttendees;
+            document.getElementById('totalAttendees').textContent = `${studentCount} + ${familyCount}`;
 
             // Update charts
             updateCharts();
@@ -450,7 +446,6 @@
         // Update charts
         function updateCharts() {
             // Department-wise count
-            const deptCounts = {};
             const branches = [
                 'Department of Computer Science & Engineering',
                 'Department of Computer Science & Engineering (AI & ML)',
@@ -460,8 +455,13 @@
                 'Department of Civil Engineering'
             ];
 
+            const interestedCounts = [];
+            const notInterestedCounts = [];
+
             branches.forEach(branch => {
-                deptCounts[branch] = filteredData.filter(d => d.branch === branch).length;
+                const deptData = filteredData.filter(d => d.branch === branch);
+                interestedCounts.push(deptData.filter(d => d.interest === 'Yes').length);
+                notInterestedCounts.push(deptData.filter(d => d.interest === 'No').length);
             });
 
             const deptLabels = [
@@ -482,31 +482,38 @@
                 type: 'bar',
                 data: {
                     labels: deptLabels,
-                    datasets: [{
-                        label: 'Number of Registrations',
-                        data: branches.map(b => deptCounts[b]),
-                        backgroundColor: [
-                            '#667eea',
-                            '#764ba2',
-                            '#f093fb',
-                            '#4facfe',
-                            '#00f2fe',
-                            '#43e97b'
-                        ],
-                        borderRadius: 6,
-                        borderSkipped: false
-                    }]
+                    datasets: [
+                        {
+                            label: 'Interested',
+                            data: interestedCounts,
+                            backgroundColor: '#667eea',
+                            borderRadius: 6,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Not Interested',
+                            data: notInterestedCounts,
+                            backgroundColor: '#f093fb',
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            position: 'top'
                         }
                     },
                     scales: {
+                        x: {
+                            stacked: true
+                        },
                         y: {
+                            stacked: true,
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 1
@@ -515,39 +522,9 @@
                     }
                 }
             });
-
-            // Interest distribution
-            const interested = filteredData.filter(d => d.interest === 'Yes').length;
-            const notInterested = filteredData.filter(d => d.interest === 'No').length;
-
-            const interestCtx = document.getElementById('interestChart').getContext('2d');
-            if (interestChart) {
-                interestChart.destroy();
-            }
-
-            interestChart = new Chart(interestCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Interested', 'Not Interested'],
-                    datasets: [{
-                        data: [interested, notInterested],
-                        backgroundColor: ['#667eea', '#f0f0f0'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
         }
 
-        // Update table - Now shows Department, Total Registered, and Interested
+        // Update table - Now shows Department and Total Registered
         function updateTable() {
             const branches = [
                 'Department of Computer Science & Engineering',

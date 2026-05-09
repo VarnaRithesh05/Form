@@ -47,6 +47,14 @@
             margin-bottom: 30px;
         }
 
+        .form-logo {
+            max-width: 150px;
+            height: auto;
+            margin: 0 auto 15px;
+            display: block;
+            border-radius: 8px;
+        }
+
         .form-header h1 {
             color: #333;
             font-size: 28px;
@@ -230,6 +238,7 @@
 <body>
     <div class="container">
         <div class="form-header">
+            <img src="images.jpg" alt="College Logo" class="form-logo">
             <h1>Registration for Open Day</h1>
             <p>Vidyavardhaka College of Engineering - 2026</p>
         </div>
@@ -290,9 +299,9 @@
                 </div>
             </div>
 
-            <div class="form-group" id="branchGroup" style="display: none;">
+            <div class="form-group" id="branchGroup">
                 <label for="branch">Which Engineering branch are you interested in? <span class="required">*</span></label>
-                <select id="branch" name="branch">
+                <select id="branch" name="branch" required>
                     <option value="">Select a branch</option>
                     <option value="Department of Computer Science & Engineering">Computer Science & Engineering</option>
                     <option value="Department of Computer Science & Engineering (AI & ML)">Computer Science & Engineering (AI & ML)</option>
@@ -313,10 +322,6 @@
                 <button type="reset" class="reset-btn">Clear Form</button>
             </div>
         </form>
-
-        <div class="analytics-link">
-            <a href="analytics.html">View Analytics Dashboard →</a>
-        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -337,24 +342,6 @@
     </script>
 
     <script>
-        // Show/hide branch selection based on interest
-        const interestRadios = document.querySelectorAll('input[name="interest"]');
-        const branchGroup = document.getElementById('branchGroup');
-        const branchSelect = document.getElementById('branch');
-
-        interestRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'Yes') {
-                    branchGroup.style.display = 'block';
-                    branchSelect.required = true;
-                } else {
-                    branchGroup.style.display = 'none';
-                    branchSelect.required = false;
-                    branchSelect.value = '';
-                }
-            });
-        });
-
         // Form submission
         document.getElementById('registrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -390,7 +377,6 @@
                 
                 // Reset form
                 document.getElementById('registrationForm').reset();
-                branchGroup.style.display = 'none';
 
                 // Scroll to success message
                 successMessage.scrollIntoView({ behavior: 'smooth' });
